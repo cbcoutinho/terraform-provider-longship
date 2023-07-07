@@ -58,6 +58,7 @@ func (p *longshipProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 			"tenant_key": schema.StringAttribute{
 				Description: "Tenant key for Longship API. May also be provided via LONGSHIP_TENANT_KEY environment variable.",
 				Optional:    true,
+				Sensitive:   true,
 			},
 			"application_key": schema.StringAttribute{
 				Description: "Application key for Longship API. May also be provided via LONGSHIP_APPLICATION_KEY environment variable.",

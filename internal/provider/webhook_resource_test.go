@@ -40,17 +40,9 @@ resource "longship_webhook" "test" {
 				ResourceName:      "longship_webhook.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-				// The created attribute does not exist in the HashiCups
-				// API, therefore there is no value for it during import.
-				ImportStateVerifyIgnore: []string{"created"},
-			},
-			{
-				ResourceName:      "longship_webhook.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// The created attribute does not exist in the HashiCups
-				// API, therefore there is no value for it during import.
-				ImportStateVerifyIgnore: []string{"updated"},
+				// The id, created, and updated attributes do not exist in the
+				// Longship API, therefore there is no value for it during import.
+				ImportStateVerifyIgnore: []string{"id", "headers", "created", "updated"},
 			},
 			// Update and Read testing
 			{
