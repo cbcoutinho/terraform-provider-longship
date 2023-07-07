@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -37,10 +38,13 @@ type HeaderModel struct {
 }
 
 // Configure adds the provider configured client to the data source.
-func (d *webhookResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (d *webhookResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+
 	if req.ProviderData == nil {
 		return
 	}
+
+	tflog.Debug(ctx, "Retrieving Longship API client")
 
 	client, ok := req.ProviderData.(*Client)
 	if !ok {
@@ -137,6 +141,8 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	tflog.Info(ctx, fmt.Sprintf("Planning webhookResource: %s", plan))
+
 	var eventTypes []string
 	for _, eventType := range plan.EventTypes {
 		eventTypes = append(eventTypes, eventType.ValueString())
@@ -159,6 +165,8 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		URL:        plan.URL.ValueString(),
 	}
 
+	tflog.Info(ctx, fmt.Sprintf("Creating webhook: %+v", config))
+
 	webhook, err := r.client.CreateWebhook(config)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -167,6 +175,8 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		)
 		return
 	}
+
+	tflog.Info(ctx, fmt.Sprintf("Create webhook response: %+v", webhook))
 
 	plan.ID = types.StringValue(webhook.ID)
 	plan.Name = types.StringValue(webhook.Name)
@@ -205,6 +215,8 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
+	tflog.Info(ctx, fmt.Sprintf("Reading webhook id: %s", state.ID.ValueString()))
+
 	// Get refreshed webhook value from Longship
 	webhook, err := r.client.GetWebhook(state.ID.ValueString())
 	if err != nil {
@@ -215,6 +227,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
+	// Overwrite attributes with refreshed state
 	state.Name = types.StringValue(webhook.Name)
 	state.OUCode = types.StringValue(webhook.OUCode)
 	state.Enabled = types.BoolValue(webhook.Enabled)
@@ -252,6 +265,8 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	tflog.Info(ctx, fmt.Sprintf("Updating webhook id: %s", plan.ID.ValueString()))
 
 	var eventTypes []string
 	for _, eventType := range plan.EventTypes {
@@ -312,6 +327,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+
 	var state webhookResourceModel
 
 	diags := req.State.Get(ctx, &state)
@@ -319,6 +335,8 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	tflog.Info(ctx, fmt.Sprintf("Deleting webhook id: %s", state.ID.ValueString()))
 
 	// Get refreshed webhook value from Longship
 	err := r.client.DeleteWebhook(state.ID.ValueString())
@@ -332,6 +350,9 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 func (r *webhookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	tflog.Info(ctx, fmt.Sprintf("Importing webhook id: %s", path.Root("id")))
+
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

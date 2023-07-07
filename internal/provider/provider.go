@@ -72,7 +72,7 @@ func (p *longshipProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 // Configure prepares a Longship API client for data sources and resources.
 func (p *longshipProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 
-	tflog.Info(ctx, "Configuring Longship client")
+	tflog.Debug(ctx, "Configuring Longship client")
 
 	// Retrieve provider data from configuration
 	var config longshipProviderModel
@@ -176,6 +176,7 @@ func (p *longshipProvider) Configure(ctx context.Context, req provider.Configure
 	ctx = tflog.SetField(ctx, "longship_host", host)
 	ctx = tflog.SetField(ctx, "longship_tenant_key", tenantKey)
 	ctx = tflog.SetField(ctx, "longship_application_key", applicationKey)
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "longship_tenant_key")
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "longship_application_key")
 
 	tflog.Debug(ctx, "Creating Longship client")

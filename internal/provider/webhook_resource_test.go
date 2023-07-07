@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccOrderResource(t *testing.T) {
+func TestAccWebhookResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -19,6 +19,7 @@ resource "longship_webhook" "test" {
   enabled = false
   event_types = ["SESSION_START"]
   url = "https://example.com"
+  headers = []
 }
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -42,17 +43,21 @@ resource "longship_webhook" "test" {
 				ImportStateVerify: true,
 				// The id, created, and updated attributes do not exist in the
 				// Longship API, therefore there is no value for it during import.
-				ImportStateVerifyIgnore: []string{"id", "headers", "created", "updated"},
+				//ImportStateVerifyIgnore: []string{"id"},
 			},
 			// Update and Read testing
 			{
 				Config: providerConfig + `
-resource "hashicups_order" "test" {
+resource "longship_webhook" "test" {
   name = "test2"
   ou_code = "0000"
   enabled = false
   event_types = ["SESSION_START", "SESSION_STOP"]
   url = "https://example.com"
+  headers = [{
+    name = "hello"
+	value = "world"
+  }]
 }
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -62,6 +67,11 @@ resource "hashicups_order" "test" {
 					resource.TestCheckResourceAttr("longship_webhook.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("longship_webhook.test", "event_types.1", "SESSION_STOP"),
 					resource.TestCheckResourceAttr("longship_webhook.test", "url", "https://example.com"),
+
+					// Verify dynamic values have any value set in the state.
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "id"),
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "created"),
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "updated"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
