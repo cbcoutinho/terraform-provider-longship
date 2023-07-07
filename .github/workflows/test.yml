@@ -77,5 +77,8 @@ jobs:
       - run: go mod download
       - env:
           TF_ACC: "1"
+          LONGSHIP_HOST: ${{ secrets.LONGSHIP_HOST }}
+          LONGSHIP_TENANT_KEY: ${{ secrets.LONGSHIP_TENANT_KEY }}
+          LONGSHIP_APPLICATION_KEY: ${{ secrets.LONGSHIP_APPLICATION_KEY }}
         run: go test -v -cover ./internal/provider/
         timeout-minutes: 10
