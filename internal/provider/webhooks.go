@@ -31,7 +31,7 @@ func (c *Client) GetWebhooks() ([]Webhook, error) {
 	return webhooks, nil
 }
 
-func (c *Client) GetWebhook(id string) (*WebhookConfig, error) {
+func (c *Client) GetWebhook(id string) (*WebhookResponse, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/webhooks/%s", c.HostURL, id), nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (c *Client) GetWebhook(id string) (*WebhookConfig, error) {
 		return nil, err
 	}
 
-	webhook := WebhookConfig{}
+	webhook := WebhookResponse{}
 	err = json.Unmarshal(body, &webhook)
 	if err != nil {
 		return nil, err
@@ -74,4 +74,44 @@ func (c *Client) CreateWebhook(webhook WebhookConfig) (*WebhookResponse, error) 
 	}
 
 	return &newWebhook, nil
+}
+
+func (c *Client) UpdateWebhook(id string, webhook WebhookConfig) (*WebhookResponse, error) {
+	rb, err := json.Marshal(webhook)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/v1/webhooks/%s", c.HostURL, id), bytes.NewReader(rb))
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	newWebhook := WebhookResponse{}
+	err = json.Unmarshal(body, &newWebhook)
+	if err != nil {
+		return nil, err
+	}
+
+	return &newWebhook, nil
+
+}
+
+func (c *Client) DeleteWebhook(id string)  error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1/webhooks/%s", c.HostURL, id), nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

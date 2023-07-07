@@ -3,10 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,7 +25,8 @@ type webhookResourceModel struct {
 	EventTypes  []types.String `tfsdk:"event_types"`
 	URL         types.String   `tfsdk:"url"`
 	Headers     []HeaderModel  `tfsdk:"headers"`
-	LastUpdated types.String   `tfsdk:"last_updated"`
+	Created     types.String   `tfsdk:"created"`
+	Updated     types.String   `tfsdk:"updated"`
 }
 
 type HeaderModel struct {
@@ -93,6 +94,9 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"headers": schema.ListNestedAttribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
@@ -104,7 +108,13 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
-			"last_updated": schema.StringAttribute{
+			"created": schema.StringAttribute{
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"updated": schema.StringAttribute{
 				Computed: true,
 			},
 		},
@@ -127,7 +137,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		eventTypes = append(eventTypes, eventType.ValueString())
 	}
 
-	var headers []Header
+	headers := []Header{}
 	for _, header := range plan.Headers {
 		headers = append(headers, Header{
 			Name:  header.Name.ValueString(),
@@ -161,8 +171,15 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	for idx, eventType := range webhook.EventTypes {
 		plan.EventTypes[idx] = types.StringValue(eventType)
 	}
+	for idx, header := range webhook.Headers {
+		plan.Headers[idx] = HeaderModel{
+			Name:  types.StringValue(header.Name),
+			Value: types.StringValue(header.Value),
+		}
+	}
 
-	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+	plan.Updated = types.StringValue(webhook.Updated)
+	plan.Created = types.StringValue(webhook.Created)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -197,6 +214,8 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	state.OUCode = types.StringValue(webhook.OUCode)
 	state.Enabled = types.BoolValue(webhook.Enabled)
 	state.URL = types.StringValue(webhook.URL)
+	state.Updated = types.StringValue(webhook.Updated)
+	state.Created = types.StringValue(webhook.Created)
 
 	state.EventTypes = []types.String{}
 	for _, eventType := range webhook.EventTypes {
@@ -220,8 +239,89 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+
+	var plan webhookResourceModel
+
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var eventTypes []string
+	for _, eventType := range plan.EventTypes {
+		eventTypes = append(eventTypes, eventType.ValueString())
+	}
+
+	var headers []Header
+	for _, header := range plan.Headers {
+		headers = append(headers, Header{
+			Name:  header.Name.ValueString(),
+			Value: header.Value.ValueString(),
+		})
+	}
+
+	config := WebhookConfig{
+		Name:       plan.Name.ValueString(),
+		OUCode:     plan.OUCode.ValueString(),
+		Enabled:    plan.Enabled.ValueBool(),
+		EventTypes: eventTypes,
+		Headers:    headers,
+		URL:        plan.URL.ValueString(),
+	}
+
+	webhook, err := r.client.UpdateWebhook(plan.ID.ValueString(), config)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating webhook",
+			"Could not create webhook, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	plan.ID = types.StringValue(webhook.ID)
+	plan.Name = types.StringValue(webhook.Name)
+	plan.OUCode = types.StringValue(webhook.OUCode)
+	plan.Enabled = types.BoolValue(webhook.Enabled)
+	plan.URL = types.StringValue(webhook.URL)
+	for idx, eventType := range webhook.EventTypes {
+		plan.EventTypes[idx] = types.StringValue(eventType)
+	}
+	for idx, header := range webhook.Headers {
+		plan.Headers[idx] = HeaderModel{
+			Name:  types.StringValue(header.Name),
+			Value: types.StringValue(header.Value),
+		}
+	}
+
+	plan.Updated = types.StringValue(webhook.Updated)
+	plan.Created = types.StringValue(webhook.Created)
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state webhookResourceModel
+
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get refreshed webhook value from Longship
+	err := r.client.DeleteWebhook(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading Longship Webhook",
+			"Could not read Longship webhook ID "+state.ID.ValueString()+": "+err.Error(),
+		)
+		return
+	}
 }

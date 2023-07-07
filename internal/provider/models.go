@@ -18,6 +18,7 @@ type WebhookResponse struct {
 	Enabled    bool     `json:"enabled"`
 	EventTypes []string `json:"eventTypes"`
 	URL        string   `json:"url"`
+	Headers    []Header `json:"headers"`
 	Created    string   `json:"created"`
 	Updated    string   `json:"updated"`
 }

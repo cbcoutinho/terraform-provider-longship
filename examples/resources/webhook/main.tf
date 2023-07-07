@@ -15,4 +15,8 @@ resource "longship_webhook" "example" {
   enabled     = false
   event_types = ["SESSION_START"]
   url         = "https://google.com"
+  headers = [{
+    name  = "hello"
+    value = "world"
+  }]
 }
