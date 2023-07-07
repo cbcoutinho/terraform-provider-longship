@@ -23,21 +23,21 @@ resource "longship_webhook" "test" {
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify attributes of webhook
-					resource.TestCheckResourceAttr("hashicups_order.test", "name", "test"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "ou_code", "0000"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "enabled", "false"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "event_types.0", "SESSION_START"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "url", "https://example.com"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "name", "test"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "ou_code", "0000"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "enabled", "false"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "event_types.0", "SESSION_START"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "url", "https://example.com"),
 
 					// Verify dynamic values have any value set in the state.
-					resource.TestCheckResourceAttrSet("hashicups_order.test", "id"),
-					resource.TestCheckResourceAttrSet("hashicups_order.test", "created"),
-					resource.TestCheckResourceAttrSet("hashicups_order.test", "updated"),
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "id"),
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "created"),
+					resource.TestCheckResourceAttrSet("longship_webhook.test", "updated"),
 				),
 			},
 			// ImportState testing
 			{
-				ResourceName:      "hashicups_order.test",
+				ResourceName:      "longship_webhook.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// The created attribute does not exist in the HashiCups
@@ -45,7 +45,7 @@ resource "longship_webhook" "test" {
 				ImportStateVerifyIgnore: []string{"created"},
 			},
 			{
-				ResourceName:      "hashicups_order.test",
+				ResourceName:      "longship_webhook.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 				// The created attribute does not exist in the HashiCups
@@ -65,11 +65,11 @@ resource "hashicups_order" "test" {
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify first order item updated
-					resource.TestCheckResourceAttr("hashicups_order.test", "name", "test2"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "ou_code", "0000"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "enabled", "false"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "event_types.1", "SESSION_STOP"),
-					resource.TestCheckResourceAttr("hashicups_order.test", "url", "https://example.com"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "name", "test2"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "ou_code", "0000"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "enabled", "false"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "event_types.1", "SESSION_STOP"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "url", "https://example.com"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
