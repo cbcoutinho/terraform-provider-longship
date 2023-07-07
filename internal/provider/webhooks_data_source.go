@@ -58,29 +58,36 @@ func (d *WebhooksDataSource) Metadata(_ context.Context, req datasource.Metadata
 // Schema defines the schema for the data source.
 func (d *WebhooksDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "Fetches the list of webhooks",
 		Attributes: map[string]schema.Attribute{
 			"webhooks": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Computed: true,
+							Description: "Unique identifier of the webhook.",
+							Computed:    true,
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Description: "Name of the webhook.",
+							Computed:    true,
 						},
 						"enabled": schema.BoolAttribute{
-							Computed: true,
+							Description: "Webhook enabled or not.",
+							Computed:    true,
 						},
 						"event_types": schema.ListAttribute{
+							Description: "Notifications triggered with this webhook.",
 							ElementType: types.StringType,
 							Computed:    true,
 						},
 						"created": schema.StringAttribute{
-							Computed: true,
+							Description: "Timestamp of when webhook was created.",
+							Computed:    true,
 						},
 						"updated": schema.StringAttribute{
-							Computed: true,
+							Description: "Timestamp of when webhook was last updated.",
+							Computed:    true,
 						},
 					},
 				},

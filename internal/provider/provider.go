@@ -52,14 +52,17 @@ func (p *longshipProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
-				Optional: true,
+				Description: "URI for Longship API. May also be provided via LONGSHIP_HOST environment variable.",
+				Optional:    true,
 			},
 			"tenant_key": schema.StringAttribute{
-				Optional: true,
+				Description: "Tenant key for Longship API. May also be provided via LONGSHIP_TENANT_KEY environment variable.",
+				Optional:    true,
 			},
 			"application_key": schema.StringAttribute{
-				Optional:  true,
-				Sensitive: true,
+				Description: "Application key for Longship API. May also be provided via LONGSHIP_APPLICATION_KEY environment variable.",
+				Optional:    true,
+				Sensitive:   true,
 			},
 		},
 	}
