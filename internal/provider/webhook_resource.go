@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
@@ -13,20 +14,21 @@ import (
 )
 
 var (
-	_ resource.Resource              = &webhookResource{}
-	_ resource.ResourceWithConfigure = &webhookResource{}
+	_ resource.Resource                = &webhookResource{}
+	_ resource.ResourceWithConfigure   = &webhookResource{}
+	_ resource.ResourceWithImportState = &webhookResource{}
 )
 
 type webhookResourceModel struct {
-	ID          types.String   `tfsdk:"id"`
-	Name        types.String   `tfsdk:"name"`
-	OUCode      types.String   `tfsdk:"ou_code"`
-	Enabled     types.Bool     `tfsdk:"enabled"`
-	EventTypes  []types.String `tfsdk:"event_types"`
-	URL         types.String   `tfsdk:"url"`
-	Headers     []HeaderModel  `tfsdk:"headers"`
-	Created     types.String   `tfsdk:"created"`
-	Updated     types.String   `tfsdk:"updated"`
+	ID         types.String   `tfsdk:"id"`
+	Name       types.String   `tfsdk:"name"`
+	OUCode     types.String   `tfsdk:"ou_code"`
+	Enabled    types.Bool     `tfsdk:"enabled"`
+	EventTypes []types.String `tfsdk:"event_types"`
+	URL        types.String   `tfsdk:"url"`
+	Headers    []HeaderModel  `tfsdk:"headers"`
+	Created    types.String   `tfsdk:"created"`
+	Updated    types.String   `tfsdk:"updated"`
 }
 
 type HeaderModel struct {
@@ -324,4 +326,9 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 		)
 		return
 	}
+}
+
+func (r *webhookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -102,7 +102,7 @@ func (c *Client) UpdateWebhook(id string, webhook WebhookConfig) (*WebhookRespon
 
 }
 
-func (c *Client) DeleteWebhook(id string)  error {
+func (c *Client) DeleteWebhook(id string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/v1/webhooks/%s", c.HostURL, id), nil)
 	if err != nil {
 		return err
