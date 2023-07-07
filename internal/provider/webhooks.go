@@ -1,10 +1,10 @@
 package provider
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 type webhooksDataSourceModel struct {
@@ -57,7 +57,10 @@ func (c *Client) CreateWebhook(webhook WebhookConfig) (*WebhookResponse, error) 
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/webhooks", c.HostURL), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v1/webhooks", c.HostURL), bytes.NewReader(rb))
+	if err != nil {
+		return nil, err
+	}
 
 	body, err := c.doRequest(req)
 	if err != nil {

@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -10,29 +9,27 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource = &chargepointsDataSource{}
+	_ datasource.DataSource = &ChargepointsDataSource{}
 )
 
 // NewChargepointsDataSource is a helper function to simplify the provider implementation.
 func NewChargepointsDataSource() datasource.DataSource {
-	return &chargepointsDataSource{}
+	return &ChargepointsDataSource{}
 }
 
-// chargepointsDataSource is the data source implementation.
-type chargepointsDataSource struct {
-	client *http.Client
-}
+// ChargepointsDataSource is the data source implementation.
+type ChargepointsDataSource struct{}
 
 // Metadata returns the data source type name.
-func (d *chargepointsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *ChargepointsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_chargepoints"
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (d *chargepointsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *ChargepointsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 }
 
-func (d *chargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ChargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"chargepoints": schema.ListNestedAttribute{
