@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -102,9 +101,6 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"headers": schema.MapAttribute{
 				Optional:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.Map{
-					mapplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
@@ -186,7 +182,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		plan.EventTypes[idx] = types.StringValue(eventType)
 	}
 
-	m := make(map[string]attr.Value)
+	m := map[string]attr.Value{}
 	for _, header := range webhook.Headers {
 		m[header.Name] = types.StringValue(header.Value)
 	}
@@ -266,7 +262,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		state.EventTypes = append(state.EventTypes, types.StringValue(eventType))
 	}
 
-	m := make(map[string]attr.Value)
+	m := map[string]attr.Value{}
 	for _, header := range webhook.Headers {
 		m[header.Name] = types.StringValue(header.Value)
 	}
