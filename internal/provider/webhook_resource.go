@@ -104,9 +104,6 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				ElementType: types.StringType,
 				Default:     mapdefault.StaticValue(types.MapValueMust(types.StringType, map[string]attr.Value{})),
-				//PlanModifiers: []planmodifier.Map{
-				//planmodifiers.MyUseStateForUnknown(),
-				//},
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
