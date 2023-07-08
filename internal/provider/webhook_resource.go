@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -27,7 +28,7 @@ type WebhookResourceModel struct {
 	Enabled    types.Bool     `tfsdk:"enabled"`
 	EventTypes []types.String `tfsdk:"event_types"`
 	URL        types.String   `tfsdk:"url"`
-	Headers    []HeaderModel  `tfsdk:"headers"`
+	Headers    types.Map      `tfsdk:"headers"`
 	Created    types.String   `tfsdk:"created"`
 	Updated    types.String   `tfsdk:"updated"`
 }
@@ -98,24 +99,18 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"url": schema.StringAttribute{
 				Required: true,
 			},
-			"headers": schema.ListNestedAttribute{
-				Optional: true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"name": schema.StringAttribute{
-							Required: true,
-						},
-						"value": schema.StringAttribute{
-							Required: true,
-						},
-					},
+			"headers": schema.MapAttribute{
+				Optional:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"updated": schema.StringAttribute{
 				Computed: true,
@@ -142,11 +137,18 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		eventTypes = append(eventTypes, eventType.ValueString())
 	}
 
+	h := map[string]string{}
+	diags = plan.Headers.ElementsAs(ctx, &h, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	headers := []Header{}
-	for _, header := range plan.Headers {
+	for name, value := range h {
 		headers = append(headers, Header{
-			Name:  header.Name.ValueString(),
-			Value: header.Value.ValueString(),
+			Name:  name,
+			Value: value,
 		})
 	}
 
@@ -177,18 +179,20 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	plan.OUCode = types.StringValue(webhook.OUCode)
 	plan.Enabled = types.BoolValue(webhook.Enabled)
 	plan.URL = types.StringValue(webhook.URL)
+	plan.Updated = types.StringValue(webhook.Updated)
+	plan.Created = types.StringValue(webhook.Created)
+
 	for idx, eventType := range webhook.EventTypes {
 		plan.EventTypes[idx] = types.StringValue(eventType)
 	}
-	for idx, header := range webhook.Headers {
-		plan.Headers[idx] = HeaderModel{
-			Name:  types.StringValue(header.Name),
-			Value: types.StringValue(header.Value),
-		}
+
+	m := make(map[string]attr.Value)
+	for _, header := range webhook.Headers {
+		m[header.Name] = types.StringValue(header.Value)
 	}
 
-	plan.Updated = types.StringValue(webhook.Updated)
-	plan.Created = types.StringValue(webhook.Created)
+	plan.Headers, diags = types.MapValue(types.StringType, m)
+	resp.Diagnostics.Append(diags...)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -261,13 +265,14 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	for _, eventType := range webhook.EventTypes {
 		state.EventTypes = append(state.EventTypes, types.StringValue(eventType))
 	}
-	state.Headers = []HeaderModel{}
+
+	m := make(map[string]attr.Value)
 	for _, header := range webhook.Headers {
-		state.Headers = append(state.Headers, HeaderModel{
-			Name:  types.StringValue(header.Name),
-			Value: types.StringValue(header.Value),
-		})
+		m[header.Name] = types.StringValue(header.Value)
 	}
+
+	state.Headers, diags = types.MapValue(types.StringType, m)
+	resp.Diagnostics.Append(diags...)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -295,11 +300,18 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 		eventTypes = append(eventTypes, eventType.ValueString())
 	}
 
-	var headers []Header
-	for _, header := range plan.Headers {
+	h := map[string]string{}
+	diags = plan.Headers.ElementsAs(ctx, &h, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	headers := []Header{}
+	for name, value := range h {
 		headers = append(headers, Header{
-			Name:  header.Name.ValueString(),
-			Value: header.Value.ValueString(),
+			Name:  name,
+			Value: value,
 		})
 	}
 
@@ -326,18 +338,20 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	plan.OUCode = types.StringValue(webhook.OUCode)
 	plan.Enabled = types.BoolValue(webhook.Enabled)
 	plan.URL = types.StringValue(webhook.URL)
+	plan.Updated = types.StringValue(webhook.Updated)
+	plan.Created = types.StringValue(webhook.Created)
+
 	for idx, eventType := range webhook.EventTypes {
 		plan.EventTypes[idx] = types.StringValue(eventType)
 	}
-	for idx, header := range webhook.Headers {
-		plan.Headers[idx] = HeaderModel{
-			Name:  types.StringValue(header.Name),
-			Value: types.StringValue(header.Value),
-		}
+
+	m := make(map[string]attr.Value)
+	for _, header := range webhook.Headers {
+		m[header.Name] = types.StringValue(header.Value)
 	}
 
-	plan.Updated = types.StringValue(webhook.Updated)
-	plan.Created = types.StringValue(webhook.Created)
+	plan.Headers, diags = types.MapValue(types.StringType, m)
+	resp.Diagnostics.Append(diags...)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)

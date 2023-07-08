@@ -19,7 +19,7 @@ resource "longship_webhook" "test" {
   enabled = false
   event_types = ["SESSION_START"]
   url = "https://example.com"
-  headers = []
+  headers = {}
 }
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -51,10 +51,9 @@ resource "longship_webhook" "test" {
   enabled = false
   event_types = ["SESSION_START", "SESSION_STOP"]
   url = "https://example.com"
-  headers = [{
-    name = "hello"
-	value = "world"
-  }]
+  headers = {
+	hello = "world"
+  }
 }
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
