@@ -20,7 +20,7 @@ var (
 	_ resource.ResourceWithImportState = &webhookResource{}
 )
 
-type webhookResourceModel struct {
+type WebhookResourceModel struct {
 	ID         types.String   `tfsdk:"id"`
 	Name       types.String   `tfsdk:"name"`
 	OUCode     types.String   `tfsdk:"ou_code"`
@@ -133,7 +133,7 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 // Create creates the resource and sets the initial Terraform state.
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 
-	var plan webhookResourceModel
+	var plan WebhookResourceModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -207,11 +207,28 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 // Read refreshes the Terraform state with the latest data.
 func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 
-	var state webhookResourceModel
+	var state WebhookResourceModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Info(ctx, "Reading all webhooks")
+
+	exists := false
+	webhooks, err := r.client.GetWebhooks()
+	for _, webhook := range webhooks {
+		tflog.Info(ctx, fmt.Sprintf("Found webhook[%s]: %+v", webhook.ID, webhook))
+		if state.ID.ValueString() == webhook.ID {
+			exists = true
+		}
+	}
+
+	if !exists {
+		tflog.Info(ctx, "Webhook does not exist!")
+		state = WebhookResourceModel{}
 		return
 	}
 
@@ -226,6 +243,8 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		)
 		return
 	}
+
+	tflog.Info(ctx, fmt.Sprintf("GET /v1/webhooks/%s response: %+v", state.ID.ValueString(), webhook))
 
 	// Overwrite attributes with refreshed state
 	state.Name = types.StringValue(webhook.Name)
@@ -258,7 +277,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 
-	var plan webhookResourceModel
+	var plan WebhookResourceModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -328,7 +347,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 
-	var state webhookResourceModel
+	var state WebhookResourceModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)

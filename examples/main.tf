@@ -20,3 +20,9 @@ resource "longship_webhook" "example" {
     value = "world"
   }]
 }
+
+data "longship_webhooks" "all" {}
+
+output "longship_webhooks" {
+  value = data.longship_webhooks.all.webhooks
+}
