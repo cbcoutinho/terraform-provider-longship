@@ -116,15 +116,9 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"updated": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
@@ -219,9 +213,17 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	exists := false
 	webhooks, err := r.client.GetWebhooks()
-	for _, webhook := range webhooks {
-		tflog.Info(ctx, fmt.Sprintf("Found webhook[%s]: %+v", webhook.ID, webhook))
-		if state.ID.ValueString() == webhook.ID {
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error reading webhooks",
+			"Could not read webhook, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	for _, w := range webhooks {
+		tflog.Info(ctx, fmt.Sprintf("Found webhook[%s]: %+v", w.ID, w))
+		if state.ID.ValueString() == w.ID {
 			exists = true
 		}
 	}
@@ -229,7 +231,13 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if !exists {
 		tflog.Info(ctx, "Webhook does not exist!")
 		state = WebhookResourceModel{}
-		return
+
+		// Set refreshed state
+		diags = resp.State.Set(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	tflog.Info(ctx, fmt.Sprintf("Reading webhook id: %s", state.ID.ValueString()))

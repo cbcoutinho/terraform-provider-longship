@@ -41,9 +41,6 @@ resource "longship_webhook" "test" {
 				ResourceName:      "longship_webhook.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-				// The id, created, and updated attributes do not exist in the
-				// Longship API, therefore there is no value for it during import.
-				//ImportStateVerifyIgnore: []string{"id"},
 			},
 			// Update and Read testing
 			{
