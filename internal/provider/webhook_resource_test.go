@@ -62,6 +62,7 @@ resource "longship_webhook" "test" {
 					resource.TestCheckResourceAttr("longship_webhook.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("longship_webhook.test", "event_types.1", "SESSION_STOP"),
 					resource.TestCheckResourceAttr("longship_webhook.test", "url", "https://example.com"),
+					resource.TestCheckResourceAttr("longship_webhook.test", "headers.hello", "world"),
 
 					// Verify dynamic values have any value set in the state.
 					resource.TestCheckResourceAttrSet("longship_webhook.test", "id"),
