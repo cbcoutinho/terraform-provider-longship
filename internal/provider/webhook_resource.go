@@ -228,16 +228,11 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		}
 	}
 
+	// https://discuss.hashicorp.com/t/how-should-read-signal-that-a-resource-has-vanished-from-the-api-server/40833
 	if !exists {
 		tflog.Info(ctx, "Webhook does not exist!")
-		state = WebhookResourceModel{}
-
-		// Set refreshed state
-		diags = resp.State.Set(ctx, &state)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
+		resp.State.RemoveResource(ctx)
+		return
 	}
 
 	tflog.Info(ctx, fmt.Sprintf("Reading webhook id: %s", state.ID.ValueString()))
