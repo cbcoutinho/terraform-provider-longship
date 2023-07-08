@@ -101,6 +101,9 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"headers": schema.MapAttribute{
 				Optional:    true,
 				ElementType: types.StringType,
+				//PlanModifiers: []planmodifier.Map{
+				//planmodifiers.MyUseStateForUnknown(),
+				//},
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
@@ -207,6 +210,10 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if state.Headers.IsNull() || state.Headers.IsUnknown() {
+		state.Headers = types.Map{}
 	}
 
 	tflog.Info(ctx, "Reading all webhooks")
