@@ -46,6 +46,11 @@ Read-Only:
 
 Read-Only:
 
+- `format` (String)
 - `id` (String)
+- `max_amperage` (Number)
+- `max_electrical_power` (Number)
+- `max_voltage` (Number)
 - `operational_status` (String)
+- `power_type` (String)
 - `standard` (String)
