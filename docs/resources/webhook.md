@@ -19,10 +19,9 @@ resource "longship_webhook" "example" {
   enabled     = false
   event_types = ["SESSION_START"]
   url         = "https://example.com"
-  headers = [{
-    name  = "hello"
-    value = "world"
-  }]
+  headers = {
+    hello = "world"
+  }
 }
 ```
 
