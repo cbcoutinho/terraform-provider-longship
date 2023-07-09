@@ -37,12 +37,12 @@ resource "longship_webhook" "example" {
 
 ### Optional
 
+- `enabled` (Boolean) Should the webhook be enabled? Defaults to `true`.
 - `headers` (Map of String) The HTTP headers to be used by the webhook.
 
 ### Read-Only
 
 - `created` (String) The timestamp associated with when the webhook was first created.
-- `enabled` (Boolean) Should the webhook be enabled? Defaults to `true`.
 - `id` (String) The ID of this resource.
 - `updated` (String) The timestamp associated with when the webhook was last updated.
 
