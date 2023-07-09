@@ -204,6 +204,7 @@ func (p *longshipProvider) Configure(ctx context.Context, req provider.Configure
 // DataSources defines the data sources implemented in the provider.
 func (p *longshipProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewChargepointsDataSource,
 		NewWebhooksDataSource,
 	}
 }
