@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -87,18 +88,26 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The name which should be used for this webhook.",
 			},
 			"ou_code": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The Organizational Unit (OU) code associated with this webhook.",
 			},
 			"enabled": schema.BoolAttribute{
-				Required: true,
+				Computed:    true,
+				Optional:    true,
+				Description: "Should the webhook be enabled? Defaults to `true`.",
+				Default:     booldefault.StaticBool(true),
 			},
 			"event_types": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 				Validators: []validator.List{
+
+					// Validate this list must not be empty.
+					listvalidator.SizeAtLeast(1),
 
 					// Validate this list must contain only unique values.
 					listvalidator.UniqueValues(),
@@ -115,24 +124,29 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						"CDR_CREATED",
 					}...)),
 				},
+				Description: "The event types for which to configure this webhook. Possible values are `SESSION_START`, `SESSION_UPDATE`, `SESSION_STOP`, `OPERATIONAL_STATUS`, `CONNECTIVITY_STATUS`, `CHARGEPOINT_BOOTED`, and `CDR_CREATED`",
 			},
 			"url": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The URL associated with the webhook.",
 			},
 			"headers": schema.MapAttribute{
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
 				Default:     mapdefault.StaticValue(types.MapValueMust(types.StringType, map[string]attr.Value{})),
+				Description: "The HTTP headers to be used by the webhook.",
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Description: "The timestamp associated with when the webhook was first created.",
 			},
 			"updated": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: "The timestamp associated with when the webhook was last updated.",
 			},
 		},
 	}

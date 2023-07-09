@@ -30,21 +30,21 @@ resource "longship_webhook" "example" {
 
 ### Required
 
-- `enabled` (Boolean)
-- `event_types` (List of String)
-- `name` (String)
-- `ou_code` (String)
-- `url` (String)
+- `event_types` (List of String) The event types for which to configure this webhook. Possible values are `SESSION_START`, `SESSION_UPDATE`, `SESSION_STOP`, `OPERATIONAL_STATUS`, `CONNECTIVITY_STATUS`, `CHARGEPOINT_BOOTED`, and `CDR_CREATED`
+- `name` (String) The name which should be used for this webhook.
+- `ou_code` (String) The Organizational Unit (OU) code associated with this webhook.
+- `url` (String) The URL associated with the webhook.
 
 ### Optional
 
-- `headers` (Map of String)
+- `headers` (Map of String) The HTTP headers to be used by the webhook.
 
 ### Read-Only
 
-- `created` (String)
+- `created` (String) The timestamp associated with when the webhook was first created.
+- `enabled` (Boolean) Should the webhook be enabled? Defaults to `true`.
 - `id` (String) The ID of this resource.
-- `updated` (String)
+- `updated` (String) The timestamp associated with when the webhook was last updated.
 
 ## Import
 
