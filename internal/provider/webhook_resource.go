@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -95,6 +98,23 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"event_types": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Validators: []validator.List{
+
+					// Validate this list must contain only unique values.
+					listvalidator.UniqueValues(),
+
+					// Validate this list must contain only supported webhook
+					// event types
+					listvalidator.ValueStringsAre(stringvalidator.OneOf([]string{
+						"SESSION_START",
+						"SESSION_UPDATE",
+						"SESSION_STOP",
+						"OPERATIONAL_STATUS",
+						"CONNECTIVITY_STATUS",
+						"CHARGEPOINT_BOOTED",
+						"CDR_CREATED",
+					}...)),
+				},
 			},
 			"url": schema.StringAttribute{
 				Required: true,

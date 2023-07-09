@@ -25,11 +25,30 @@ type ChargepointsDataSourceModel struct {
 }
 
 type ChargepointDataSourceModel struct {
-	ID            types.String `tfsdk:"id"`
-	ChargepointID types.String `tfsdk:"chargepoint_id"`
-	DateDeleted   types.String `tfsdk:"date_deleted"`
-	DisplayName   types.String `tfsdk:"display_name"`
-	RoamingName   types.String `tfsdk:"roaming_name"`
+	ID                    types.String          `tfsdk:"id"`
+	ChargepointID         types.String          `tfsdk:"chargepoint_id"`
+	DateDeleted           types.String          `tfsdk:"date_deleted"`
+	DisplayName           types.String          `tfsdk:"display_name"`
+	RoamingName           types.String          `tfsdk:"roaming_name"`
+	ChargeBoxSerialNumber types.String          `tfsdk:"charge_box_serial_number"`
+	ChargepointVendor     types.String          `tfsdk:"chargepoint_vendor"`
+	Evses                 []EvseDataSourceModel `tfsdk:"evses"`
+}
+
+type EvseDataSourceModel struct {
+	EvseID     types.String               `tfsdk:"evse_id"`
+	Connectors []ConnectorDataSourceModel `tfsdk:"connectors"`
+}
+
+type ConnectorDataSourceModel struct {
+	ID                 types.String `tfsdk:"id"`
+	OperationalStatus  types.String `tfsdk:"operational_status"`
+	Standard           types.String `tfsdk:"standard"`
+	Format             types.String `tfsdk:"format"`
+	PowerType          types.String `tfsdk:"power_type"`
+	MaxVoltage         types.Int64  `tfsdk:"max_voltage"`
+	MaxAmperage        types.Int64  `tfsdk:"max_amperage"`
+	MaxElectricalPower types.Int64  `tfsdk:"max_electrical_power"`
 }
 
 // NewChargepointsDataSource is a helper function to simplify the provider implementation.
@@ -83,15 +102,53 @@ func (d *ChargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 						"roaming_name": schema.StringAttribute{
 							Computed: true,
 						},
-						//"reimburse_tariff_price": schema.StringAttribute{
-						//Computed: true,
-						//},
-						//"reimburse_tariff_id": schema.StringAttribute{
-						//Computed: true,
-						//},
-						//"has_gues_usage": schema.StringAttribute{
-						//Computed: true,
-						//},
+						"charge_box_serial_number": schema.StringAttribute{
+							Computed: true,
+						},
+						"chargepoint_vendor": schema.StringAttribute{
+							Computed: true,
+						},
+						"evses": schema.ListNestedAttribute{
+							Computed: true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"evse_id": schema.StringAttribute{
+										Computed: true,
+									},
+									"connectors": schema.ListNestedAttribute{
+										Computed: true,
+										NestedObject: schema.NestedAttributeObject{
+											Attributes: map[string]schema.Attribute{
+												"id": schema.StringAttribute{
+													Computed: true,
+												},
+												"operational_status": schema.StringAttribute{
+													Computed: true,
+												},
+												"standard": schema.StringAttribute{
+													Computed: true,
+												},
+												"format": schema.StringAttribute{
+													Computed: true,
+												},
+												"power_type": schema.StringAttribute{
+													Computed: true,
+												},
+												"max_voltage": schema.Int64Attribute{
+													Computed: true,
+												},
+												"max_amperage": schema.Int64Attribute{
+													Computed: true,
+												},
+												"max_electrical_power": schema.Int64Attribute{
+													Computed: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -114,16 +171,37 @@ func (d *ChargepointsDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	for _, chargepoint := range chargepoints {
 		chargepointState := ChargepointDataSourceModel{
-			ID:            types.StringValue(chargepoint.ID),
-			ChargepointID: types.StringValue(chargepoint.ChargepointID),
-			DateDeleted:   types.StringValue(chargepoint.DateDeleted),
-			DisplayName:   types.StringValue(chargepoint.DisplayName),
-			RoamingName:   types.StringValue(chargepoint.RoamingName),
+			ID:                    types.StringValue(chargepoint.ID),
+			ChargepointID:         types.StringValue(chargepoint.ChargepointID),
+			DateDeleted:           types.StringValue(chargepoint.DateDeleted),
+			DisplayName:           types.StringValue(chargepoint.DisplayName),
+			RoamingName:           types.StringValue(chargepoint.RoamingName),
+			ChargeBoxSerialNumber: types.StringValue(chargepoint.ChargeBoxSerialNumber),
+			ChargepointVendor:     types.StringValue(chargepoint.ChargepointVendor),
 		}
 
-		//for _, eventType := range webhook.EventTypes {
-		//webhookState.EventTypes = append(webhookState.EventTypes, types.StringValue(eventType))
-		//}
+		evsesState := []EvseDataSourceModel{}
+		for _, evse := range chargepoint.Evses {
+			connectorsState := []ConnectorDataSourceModel{}
+			for _, connector := range evse.Connectors {
+				connectorState := ConnectorDataSourceModel{
+					ID:                 types.StringValue(connector.ID),
+					OperationalStatus:  types.StringValue(connector.OperationalStatus),
+					Standard:           types.StringValue(connector.Standard),
+					Format:             types.StringValue(connector.Format),
+					PowerType:          types.StringValue(connector.PowerType),
+					MaxVoltage:         types.Int64Value(connector.MaxVoltage),
+					MaxAmperage:        types.Int64Value(connector.MaxAmperage),
+					MaxElectricalPower: types.Int64Value(connector.MaxElectricalPower),
+				}
+				connectorsState = append(connectorsState, connectorState)
+			}
+			evsesState = append(evsesState, EvseDataSourceModel{
+				EvseID:     types.StringValue(evse.EvseID),
+				Connectors: connectorsState,
+			})
+		}
+		chargepointState.Evses = evsesState
 
 		state.Chargepoints = append(state.Chargepoints, chargepointState)
 	}
