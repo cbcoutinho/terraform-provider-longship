@@ -23,9 +23,14 @@ type Evse struct {
 }
 
 type Connector struct {
-	ID                string `json:"id"`
-	OperationalStatus string `json:"operationalStatus"`
-	Standard          string `json:"standard"`
+	ID                 string `json:"id"`
+	OperationalStatus  string `json:"operationalStatus"`
+	Standard           string `json:"standard"`
+	Format             string `json:"format"`
+	PowerType          string `json:"powerType"`
+	MaxVoltage         int64  `json:"maxVoltage"`
+	MaxAmperage        int64  `json:"maxAmperage"`
+	MaxElectricalPower int64  `json:"maxElectricalPower"`
 }
 
 func (c *Client) GetChargepoints() ([]Chargepoint, error) {

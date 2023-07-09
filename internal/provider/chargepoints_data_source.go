@@ -41,9 +41,14 @@ type EvseDataSourceModel struct {
 }
 
 type ConnectorDataSourceModel struct {
-	ID                types.String `tfsdk:"id"`
-	OperationalStatus types.String `tfsdk:"operational_status"`
-	Standard          types.String `tfsdk:"standard"`
+	ID                 types.String `tfsdk:"id"`
+	OperationalStatus  types.String `tfsdk:"operational_status"`
+	Standard           types.String `tfsdk:"standard"`
+	Format             types.String `tfsdk:"format"`
+	PowerType          types.String `tfsdk:"power_type"`
+	MaxVoltage         types.Int64  `tfsdk:"max_voltage"`
+	MaxAmperage        types.Int64  `tfsdk:"max_amperage"`
+	MaxElectricalPower types.Int64  `tfsdk:"max_electrical_power"`
 }
 
 // NewChargepointsDataSource is a helper function to simplify the provider implementation.
@@ -123,6 +128,21 @@ func (d *ChargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 												"standard": schema.StringAttribute{
 													Computed: true,
 												},
+												"format": schema.StringAttribute{
+													Computed: true,
+												},
+												"power_type": schema.StringAttribute{
+													Computed: true,
+												},
+												"max_voltage": schema.Int64Attribute{
+													Computed: true,
+												},
+												"max_amperage": schema.Int64Attribute{
+													Computed: true,
+												},
+												"max_electrical_power": schema.Int64Attribute{
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -165,9 +185,14 @@ func (d *ChargepointsDataSource) Read(ctx context.Context, req datasource.ReadRe
 			connectorsState := []ConnectorDataSourceModel{}
 			for _, connector := range evse.Connectors {
 				connectorState := ConnectorDataSourceModel{
-					ID:                types.StringValue(connector.ID),
-					OperationalStatus: types.StringValue(connector.OperationalStatus),
-					Standard:          types.StringValue(connector.Standard),
+					ID:                 types.StringValue(connector.ID),
+					OperationalStatus:  types.StringValue(connector.OperationalStatus),
+					Standard:           types.StringValue(connector.Standard),
+					Format:             types.StringValue(connector.Format),
+					PowerType:          types.StringValue(connector.PowerType),
+					MaxVoltage:         types.Int64Value(connector.MaxVoltage),
+					MaxAmperage:        types.Int64Value(connector.MaxAmperage),
+					MaxElectricalPower: types.Int64Value(connector.MaxElectricalPower),
 				}
 				connectorsState = append(connectorsState, connectorState)
 			}
