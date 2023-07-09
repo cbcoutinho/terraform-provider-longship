@@ -24,8 +24,28 @@ description: |-
 
 Read-Only:
 
+- `charge_box_serial_number` (String)
 - `chargepoint_id` (String)
+- `chargepoint_vendor` (String)
 - `date_deleted` (String)
 - `display_name` (String)
+- `evses` (Attributes List) (see [below for nested schema](#nestedatt--chargepoints--evses))
 - `id` (String)
 - `roaming_name` (String)
+
+<a id="nestedatt--chargepoints--evses"></a>
+### Nested Schema for `chargepoints.evses`
+
+Read-Only:
+
+- `connectors` (Attributes List) (see [below for nested schema](#nestedatt--chargepoints--evses--connectors))
+- `evse_id` (String)
+
+<a id="nestedatt--chargepoints--evses--connectors"></a>
+### Nested Schema for `chargepoints.evses.connectors`
+
+Read-Only:
+
+- `id` (String)
+- `operational_status` (String)
+- `standard` (String)
