@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-type webhooksDataSourceModel struct {
-	Webhooks []WebhookDataSourceModel `tfsdk:"webhooks"`
-}
-
 func (c *Client) GetWebhooks() ([]Webhook, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/webhooks", c.HostURL), nil)
 	if err != nil {

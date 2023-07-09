@@ -2,31 +2,63 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource = &ChargepointsDataSource{}
+	_ datasource.DataSource              = &ChargepointsDataSource{}
+	_ datasource.DataSourceWithConfigure = &ChargepointsDataSource{}
 )
+
+// ChargepointsDataSource is the data source implementation.
+type ChargepointsDataSource struct {
+	client *Client
+}
+
+type ChargepointsDataSourceModel struct {
+	Chargepoints []ChargepointDataSourceModel `tfsdk:"chargepoints"`
+}
+
+type ChargepointDataSourceModel struct {
+	ID            types.String `tfsdk:"id"`
+	ChargepointID types.String `tfsdk:"chargepoint_id"`
+	DateDeleted   types.String `tfsdk:"date_deleted"`
+	DisplayName   types.String `tfsdk:"display_name"`
+	RoamingName   types.String `tfsdk:"roaming_name"`
+}
 
 // NewChargepointsDataSource is a helper function to simplify the provider implementation.
 func NewChargepointsDataSource() datasource.DataSource {
 	return &ChargepointsDataSource{}
 }
 
-// ChargepointsDataSource is the data source implementation.
-type ChargepointsDataSource struct{}
+// Configure adds the provider configured client to the data source.
+func (d *ChargepointsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*Client)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
+}
 
 // Metadata returns the data source type name.
 func (d *ChargepointsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_chargepoints"
-}
-
-// Read refreshes the Terraform state with the latest data.
-func (d *ChargepointsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 }
 
 func (d *ChargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
@@ -36,28 +68,70 @@ func (d *ChargepointsDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-
 						"id": schema.StringAttribute{
 							Computed: true,
 						},
-						"charge_point_id": schema.StringAttribute{
+						"chargepoint_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"date_deleted": schema.StringAttribute{
 							Computed: true,
 						},
 						"display_name": schema.StringAttribute{
 							Computed: true,
 						},
-						"reimburse_tariff_price": schema.StringAttribute{
+						"roaming_name": schema.StringAttribute{
 							Computed: true,
 						},
-						"reimburse_tariff_id": schema.StringAttribute{
-							Computed: true,
-						},
-						"has_gues_usage": schema.StringAttribute{
-							Computed: true,
-						},
+						//"reimburse_tariff_price": schema.StringAttribute{
+						//Computed: true,
+						//},
+						//"reimburse_tariff_id": schema.StringAttribute{
+						//Computed: true,
+						//},
+						//"has_gues_usage": schema.StringAttribute{
+						//Computed: true,
+						//},
 					},
 				},
 			},
 		},
+	}
+}
+
+// Read refreshes the Terraform state with the latest data.
+func (d *ChargepointsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state ChargepointsDataSourceModel
+
+	chargepoints, err := d.client.GetChargepoints()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Longship Webhooks",
+			err.Error(),
+		)
+		return
+	}
+
+	for _, chargepoint := range chargepoints {
+		chargepointState := ChargepointDataSourceModel{
+			ID:            types.StringValue(chargepoint.ID),
+			ChargepointID: types.StringValue(chargepoint.ChargepointID),
+			DateDeleted:   types.StringValue(chargepoint.DateDeleted),
+			DisplayName:   types.StringValue(chargepoint.DisplayName),
+			RoamingName:   types.StringValue(chargepoint.RoamingName),
+		}
+
+		//for _, eventType := range webhook.EventTypes {
+		//webhookState.EventTypes = append(webhookState.EventTypes, types.StringValue(eventType))
+		//}
+
+		state.Chargepoints = append(state.Chargepoints, chargepointState)
+	}
+
+	// Set state
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }

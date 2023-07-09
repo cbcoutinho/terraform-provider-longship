@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -100,10 +101,9 @@ func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"headers": schema.MapAttribute{
 				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
-				//PlanModifiers: []planmodifier.Map{
-				//planmodifiers.MyUseStateForUnknown(),
-				//},
+				Default:     mapdefault.StaticValue(types.MapValueMust(types.StringType, map[string]attr.Value{})),
 			},
 			"created": schema.StringAttribute{
 				Computed: true,
@@ -210,10 +210,6 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
-	}
-
-	if state.Headers.IsNull() || state.Headers.IsUnknown() {
-		state.Headers = types.Map{}
 	}
 
 	tflog.Info(ctx, "Reading all webhooks")

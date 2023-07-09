@@ -18,6 +18,10 @@ type WebhooksDataSource struct {
 	client *Client
 }
 
+type webhooksDataSourceModel struct {
+	Webhooks []WebhookDataSourceModel `tfsdk:"webhooks"`
+}
+
 type WebhookDataSourceModel struct {
 	ID         types.String   `tfsdk:"id"`
 	Name       types.String   `tfsdk:"name"`
