@@ -222,12 +222,12 @@ func (d *OrganizationalUnitsDataSource) Read(ctx context.Context, req datasource
 			MspOuName:                 types.StringValue(ou.MspOuName),
 			MspOuCode:                 types.StringValue(ou.MspOuCode),
 			MspExternalID:             types.StringValue(ou.MspExternalID),
-		}
 
-		ouState.FinancialDetails = FinancialDetailsDataSourceModel{
-			BeneficiaryName: types.StringValue(ou.FinancialDetails.BeneficiaryName),
-			IBAN:            types.StringValue(ou.FinancialDetails.IBAN),
-			BIC:             types.StringValue(ou.FinancialDetails.BIC),
+			FinancialDetails: FinancialDetailsDataSourceModel{
+				BeneficiaryName: types.StringValue(ou.FinancialDetails.BeneficiaryName),
+				IBAN:            types.StringValue(ou.FinancialDetails.IBAN),
+				BIC:             types.StringValue(ou.FinancialDetails.BIC),
+			},
 		}
 
 		state.OrganizationalUnits = append(state.OrganizationalUnits, ouState)
