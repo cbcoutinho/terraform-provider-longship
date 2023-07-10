@@ -91,25 +91,25 @@ func (p *longshipProvider) Configure(ctx context.Context, req provider.Configure
 			path.Root("host"),
 			"Unknown Longship API Host",
 			"The provider cannot create the Longship API client as there is an unknown configuration value for the Longship API host. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the LONGSHIP_HOST environment variable.",
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the `LONGSHIP_HOST` environment variable.",
 		)
 	}
 
 	if config.TenantKey.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("tenant_key"),
-			"Unknown Longship API TenantKey",
-			"The provider cannot create the Longship API client as there is an unknown configuration value for the Longship API tenantKey. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the LONGSHIP_TENANT_KEY environment variable.",
+			"Unknown Longship API Tenant Key",
+			"The provider cannot create the Longship API client as there is an unknown configuration value for the Longship API tenant key. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the `LONGSHIP_TENANT_KEY` environment variable.",
 		)
 	}
 
 	if config.ApplicationKey.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("application_key"),
-			"Unknown Longship API ApplicationKey",
-			"The provider cannot create the Longship API client as there is an unknown configuration value for the Longship API applicationKey. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the LONGSHIP_APPLICATION_KEY environment variable.",
+			"Unknown Longship API Application Key",
+			"The provider cannot create the Longship API client as there is an unknown configuration value for the Longship API application key. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the `LONGSHIP_APPLICATION_KEY` environment variable.",
 		)
 	}
 
