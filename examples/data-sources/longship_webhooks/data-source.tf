@@ -1,4 +1,5 @@
-# List all webhooks
+provider "longship" {}
+
 data "longship_webhooks" "all" {}
 
 output "webhooks" {

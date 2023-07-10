@@ -18,6 +18,35 @@ initializing the provider.
 
 ## Example Usage
 
+First include the Longship.io provider in the list of required providers:
+
+```terraform
+terraform {
+  required_providers {
+    longship = {
+      version = "0.1.14"
+      source = "cbcoutinho/longship"
+    }
+  }
+}
+```
+
+## Configuring the provider
+
+It's possible to configure the provider using _variables_:
+
 {{ tffile "examples/provider/provider.tf" }}
+
+However, you could also use environmental variables as follows:
+
+```shell
+export LONGSHIP_HOST
+export LONGSHIP_TENANT_KEY
+export LONGSHIP_APPLICATION_KEY
+```
+
+{{ tffile "examples/provider/provider-env.tf" }}
+
+
 
 {{ .SchemaMarkdown | trimspace }}

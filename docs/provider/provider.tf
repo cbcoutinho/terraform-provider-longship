@@ -1,28 +1,24 @@
 terraform {
   required_providers {
     longship = {
-      version = "0.1.12"
+      version = "<no value>"
       source  = "cbcoutinho/longship"
     }
   }
 }
 
-provider "longship" {}
+provider "longship" {
+  host            = var.longship_host
+  tenant_key      = var.longship_tenant_key
+  application_key = var.longship_application_key
+}
 
 resource "longship_webhook" "example" {
-  name    = "test"
-  ou_code = "0000"
-  enabled = false
-  event_types = [
-    "SESSION_START",
-    "SESSION_UPDATE",
-    "SESSION_STOP",
-    "OPERATIONAL_STATUS",
-    "CONNECTIVITY_STATUS",
-    "CHARGEPOINT_BOOTED",
-    "CDR_CREATED",
-  ]
-  url = "https://example.com"
+  name        = "test"
+  ou_code     = "0000"
+  enabled     = false
+  event_types = ["SESSION_START"]
+  url         = "https://example.com"
   headers = {
     hello = "world"
   }
