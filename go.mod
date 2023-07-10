@@ -1,4 +1,4 @@
-module terraform-provider-longship
+module github.com/cbcoutinho/terraform-provider-longship
 
 go 1.19
 
