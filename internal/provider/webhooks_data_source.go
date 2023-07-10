@@ -9,11 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// Ensure the implementation satisfies the expected interfaces.
 var (
 	_ datasource.DataSource              = &WebhooksDataSource{}
 	_ datasource.DataSourceWithConfigure = &WebhooksDataSource{}
 )
 
+// WebhooksDataSource is the data source implementation.
 type WebhooksDataSource struct {
 	client *Client
 }

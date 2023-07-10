@@ -28,18 +28,30 @@ resource "longship_webhook" "example" {
   }
 }
 
+# --- Webhooks ---
+
 data "longship_webhooks" "all" {
   depends_on = [
     longship_webhook.example
   ]
 }
 
-data "longship_chargepoints" "all" {}
-
 output "longship_webhooks" {
   value = data.longship_webhooks.all.webhooks
 }
 
+# --- Chargepoints ---
+
+data "longship_chargepoints" "all" {}
+
 output "longship_chargepoints" {
   value = data.longship_chargepoints.all.chargepoints
+}
+
+# --- Organizational Units ---
+
+data "longship_organizational_units" "all" {}
+
+output "longship_organizational_units" {
+  value = data.longship_organizational_units.all.organizational_units
 }
