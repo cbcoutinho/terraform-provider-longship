@@ -206,6 +206,7 @@ func (p *longshipProvider) DataSources(_ context.Context) []func() datasource.Da
 	return []func() datasource.DataSource{
 		NewChargepointsDataSource,
 		NewWebhooksDataSource,
+		NewOrganizationalUnitsDataSource,
 	}
 }
 
