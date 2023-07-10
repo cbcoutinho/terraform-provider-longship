@@ -24,8 +24,8 @@ First include the Longship.io provider in the list of required providers:
 terraform {
   required_providers {
     longship = {
-	  version = "0.1.14"
-	  source = "cbcoutinho/longship"
+      version = "0.1.14"
+      source = "cbcoutinho/longship"
     }
   }
 }
