@@ -1,6 +1,4 @@
-# Terraform Provider Longship (Terraform Plugin Framework)
-
-_This template repository is built on the [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework). The template repository built on the [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) can be found at [terraform-provider-scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding). See [Which SDK Should I Use?](https://www.terraform.io/docs/plugin/which-sdk.html) in the Terraform documentation for additional information._
+# Longship.io Terraform Provider
 
 This provider enables automating EV Charging resources for the CPO [Longship](https://longship.io)
 
@@ -16,7 +14,7 @@ This provider enables automating EV Charging resources for the CPO [Longship](ht
 1. Build the provider using the Go `install` command:
 
 ```shell
-go install
+go install .
 ```
 
 ## Adding Dependencies
@@ -35,7 +33,48 @@ Then commit the changes to `go.mod` and `go.sum`.
 
 ## Using the provider
 
-Fill this in for each provider
+Here's a small example of how to use the provider:
+
+```terraform
+terraform {
+  required_providers {
+    longship = {
+      version = "0.1.12"
+      source  = "cbcoutinho/longship"
+    }
+  }
+}
+
+provider "longship" {}
+
+resource "longship_webhook" "example" {
+  name    = "test"
+  ou_code = "0000"
+  enabled = false
+  event_types = ["SESSION_START"]
+  url = "https://example.com"
+  headers = {
+    hello = "world"
+  }
+}
+
+data "longship_webhooks" "all" {
+  depends_on = [
+    longship_webhook.example
+  ]
+}
+
+data "longship_chargepoints" "all" {}
+
+output "longship_webhooks" {
+  value = data.longship_webhooks.all.webhooks
+}
+
+output "longship_chargepoints" {
+  value = data.longship_chargepoints.all.chargepoints
+}
+```
+
 
 ## Developing the Provider
 
