@@ -49,7 +49,9 @@ output "longship_chargepoints" {
 }
 
 # --- Organizational Units ---
+
 data "longship_organizational_units" "all" {}
+
 output "longship_organizational_units" {
   value = data.longship_organizational_units.all.organizational_units
 }
