@@ -13,7 +13,8 @@ Fetches the list of webhooks
 ## Example Usage
 
 ```terraform
-# List all webhooks
+provider "longship" {}
+
 data "longship_webhooks" "all" {}
 
 output "webhooks" {
