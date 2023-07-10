@@ -27,10 +27,30 @@ type OrganizationalUnitsDataSourceModel struct {
 }
 
 type OrganizationalUnitDataSourceModel struct {
-	ID               types.String                    `tfsdk:"id"`
-	ParentID         types.String                    `tfsdk:"parent_id"`
-	Name             types.String                    `tfsdk:"name"`
-	FinancialDetails FinancialDetailsDataSourceModel `tfsdk:"financial_details"`
+	ID                        types.String                    `tfsdk:"id"`
+	ParentID                  types.String                    `tfsdk:"parent_id"`
+	Name                      types.String                    `tfsdk:"name"`
+	Code                      types.String                    `tfsdk:"code"`
+	ExternalReference         types.String                    `tfsdk:"external_reference"`
+	GridOwnerReference        types.String                    `tfsdk:"grid_owner_reference"`
+	TenantReference           types.String                    `tfsdk:"tenant_reference"`
+	CustomerReference         types.String                    `tfsdk:"customer_reference"`
+	Address                   types.String                    `tfsdk:"address"`
+	State                     types.String                    `tfsdk:"state"`
+	Country                   types.String                    `tfsdk:"country"`
+	City                      types.String                    `tfsdk:"city"`
+	HouseNumber               types.String                    `tfsdk:"house_number"`
+	PostalCode                types.String                    `tfsdk:"postal_code"`
+	HotlinePhoneNumber        types.String                    `tfsdk:"hotline_phone_number"`
+	CompanyEmail              types.String                    `tfsdk:"company_email"`
+	PrimaryContactPerson      types.String                    `tfsdk:"primary_contact_person"`
+	PrimaryContactPersonEmail types.String                    `tfsdk:"primary_contact_person_email"`
+	DirectPaymentProfileId    types.String                    `tfsdk:"direct_payment_profile_id"`
+	MspOuID                   types.String                    `tfsdk:"msp_ou_id"`
+	MspOuName                 types.String                    `tfsdk:"msp_ou_name"`
+	MspOuCode                 types.String                    `tfsdk:"msp_ou_code"`
+	MspExternalID             types.String                    `tfsdk:"msp_external_id"`
+	FinancialDetails          FinancialDetailsDataSourceModel `tfsdk:"financial_details"`
 }
 
 type FinancialDetailsDataSourceModel struct {
@@ -83,6 +103,66 @@ func (d *OrganizationalUnitsDataSource) Schema(_ context.Context, _ datasource.S
 						"name": schema.StringAttribute{
 							Computed: true,
 						},
+						"code": schema.StringAttribute{
+							Computed: true,
+						},
+						"external_reference": schema.StringAttribute{
+							Computed: true,
+						},
+						"grid_owner_reference": schema.StringAttribute{
+							Computed: true,
+						},
+						"tenant_reference": schema.StringAttribute{
+							Computed: true,
+						},
+						"customer_reference": schema.StringAttribute{
+							Computed: true,
+						},
+						"address": schema.StringAttribute{
+							Computed: true,
+						},
+						"state": schema.StringAttribute{
+							Computed: true,
+						},
+						"country": schema.StringAttribute{
+							Computed: true,
+						},
+						"city": schema.StringAttribute{
+							Computed: true,
+						},
+						"house_number": schema.StringAttribute{
+							Computed: true,
+						},
+						"postal_code": schema.StringAttribute{
+							Computed: true,
+						},
+						"hotline_phone_number": schema.StringAttribute{
+							Computed: true,
+						},
+						"company_email": schema.StringAttribute{
+							Computed: true,
+						},
+						"primary_contact_person": schema.StringAttribute{
+							Computed: true,
+						},
+						"primary_contact_person_email": schema.StringAttribute{
+							Computed: true,
+						},
+						"direct_payment_profile_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"msp_ou_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"msp_ou_name": schema.StringAttribute{
+							Computed: true,
+						},
+						"msp_ou_code": schema.StringAttribute{
+							Computed: true,
+						},
+						"msp_external_id": schema.StringAttribute{
+							Computed: true,
+						},
 						"financial_details": schema.ObjectAttribute{
 							Computed: true,
 							AttributeTypes: map[string]attr.Type{
@@ -119,9 +199,29 @@ func (d *OrganizationalUnitsDataSource) Read(ctx context.Context, req datasource
 		tflog.Warn(ctx, fmt.Sprintf("Organizational Unit: %+v", ou))
 
 		ouState := OrganizationalUnitDataSourceModel{
-			ID:       types.StringValue(ou.ID),
-			ParentID: types.StringValue(ou.ParentID),
-			Name:     types.StringValue(ou.Name),
+			ID:                        types.StringValue(ou.ID),
+			ParentID:                  types.StringValue(ou.ParentID),
+			Name:                      types.StringValue(ou.Name),
+			Code:                      types.StringValue(ou.Code),
+			ExternalReference:         types.StringValue(ou.ExternalReference),
+			GridOwnerReference:        types.StringValue(ou.GridOwnerReference),
+			TenantReference:           types.StringValue(ou.TenantReference),
+			CustomerReference:         types.StringValue(ou.CustomerReference),
+			Address:                   types.StringValue(ou.Address),
+			State:                     types.StringValue(ou.State),
+			Country:                   types.StringValue(ou.Country),
+			City:                      types.StringValue(ou.City),
+			HouseNumber:               types.StringValue(ou.HouseNumber),
+			PostalCode:                types.StringValue(ou.PostalCode),
+			HotlinePhoneNumber:        types.StringValue(ou.HotlinePhoneNumber),
+			CompanyEmail:              types.StringValue(ou.CompanyEmail),
+			PrimaryContactPerson:      types.StringValue(ou.PrimaryContactPerson),
+			PrimaryContactPersonEmail: types.StringValue(ou.PrimaryContactPersonEmail),
+			DirectPaymentProfileId:    types.StringValue(ou.DirectPaymentProfileId),
+			MspOuID:                   types.StringValue(ou.MspOuID),
+			MspOuName:                 types.StringValue(ou.MspOuName),
+			MspOuCode:                 types.StringValue(ou.MspOuCode),
+			MspExternalID:             types.StringValue(ou.MspExternalID),
 		}
 
 		ouState.FinancialDetails = FinancialDetailsDataSourceModel{
