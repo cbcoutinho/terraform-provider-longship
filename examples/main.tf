@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     longship = {
-      version = "0.1.9"
+      version = "0.1.12"
       source  = "cbcoutinho/longship"
     }
   }
