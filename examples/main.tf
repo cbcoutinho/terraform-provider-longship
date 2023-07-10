@@ -28,7 +28,11 @@ resource "longship_webhook" "example" {
   }
 }
 
-data "longship_webhooks" "all" {}
+data "longship_webhooks" "all" {
+  depends_on = [
+    longship_webhook.example
+  ]
+}
 data "longship_chargepoints" "all" {}
 
 output "longship_webhooks" {
