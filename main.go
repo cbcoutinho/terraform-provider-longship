@@ -7,11 +7,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
-	"terraform-provider-longship/internal/provider"
+	"github.com/cbcoutinho/terraform-provider-longship/internal/provider"
 )
 
 var (
-	version string = "0.1.5"
+	// NOTE: This is overwritten by GoReleaser.
+	version string = "undefined"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "milence.com/data-platform/longship",
+		Address: "registry.terraform.io/cbcoutinho/terraform-provider-longship",
 		Debug:   debug,
 	}
 
