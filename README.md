@@ -1,6 +1,6 @@
 # Longship.io Terraform Provider
 
-This provider enables automating EV Charging resources for the CPO [Longship](https://longship.io)
+This provider enables automating resources on [Longship.io](https://longship.io), the EV Charging Point Operator (CPO) platform
 
 ## Requirements
 
