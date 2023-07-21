@@ -8,7 +8,7 @@ stages:
       - job:
         variables:
           - group: terraform-group-dev
-        stesp:
+        steps:
           - checkout: self
           - bash: |
               make testacc
