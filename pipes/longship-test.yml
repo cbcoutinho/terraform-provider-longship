@@ -5,7 +5,7 @@ stages:
   - stage: Test
     dependsOn:
     jobs:
-      - job:
+      - job: Test
         variables:
           - group: terraform-group-dev
         steps:
