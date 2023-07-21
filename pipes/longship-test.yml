@@ -1,0 +1,40 @@
+trigger: none
+pool:
+  vmImage: ubuntu-latest
+stages:
+  - stage: Test
+    dependsOn:
+    jobs:
+      - job: Test
+        variables:
+          - group: terraform-group-dev
+        steps:
+          - checkout: self
+          - bash: |
+              make testacc
+            env:
+              LONGSHIP_HOST: $(Longship-host)
+              LONGSHIP_TENANT_KEY: $(Longship-subscription-key)
+              LONGSHIP_APPLICATION_KEY: $(Longship-API-key)
+  - stage: Sonarqube
+    dependsOn:
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+            fetchDepth: 0
+          - task: SonarCloudPrepare@1
+            inputs:
+              SonarCloud: Sonarqube
+              organization: milence
+              scannerMode: CLI
+              configMode: manual
+              cliProjectKey: cvce_terraform-provider-longship
+              cliProjectName: terraform-provider-longship
+              cliSources: '.'
+          - task: SonarCloudAnalyze@1
+            inputs:
+              jdkversion: 'JAVA_HOME_11_X64'
+          - task: SonarCloudPublish@1
+            inputs:
+              pollingTimeoutSec: '300'
