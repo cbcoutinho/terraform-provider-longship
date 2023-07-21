@@ -18,8 +18,8 @@ stages:
               organization: milence
               scannerMode: CLI
               configMode: manual
-              cliProjectKey: cvce_Terraform
-              cliProjectName: Terraform
+              cliProjectKey: cvce_terraform-provider-longship
+              cliProjectName: terraform-provider-longship
               cliSources: '.'
           - task: SonarCloudAnalyze@1
             inputs:
