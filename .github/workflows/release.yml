@@ -33,7 +33,7 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           fingerprint: ${{ secrets.GPG_FINGERPRINT }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@3fa32b8bb5620a2c1afe798654bbad59f9da4906 # v4.4.0
+        uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200 # v6.0.0
         with:
           args: release --clean
         env:
